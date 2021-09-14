@@ -17,7 +17,7 @@ const tank = new Image();
 tank.src = spriteBase64;
 const invader = new Image();
 invader.src = spriteBase64;
-var startScreenOut;
+var startScreenTimeout;
 
 var frameCount = 0;
 var armyPrevFrameCount = 0;
@@ -68,7 +68,7 @@ var tankBulletX;
 var tankBulletY;
 var shouldMoveTankBullet = false;
 var tankBulletDy = 10;
-var invaderBulleysArray = [];
+var invaderBulletsArray = [];
 var invBulletDy = 5;
 var invBulletPrevFrameCount = 0;
 
@@ -88,7 +88,117 @@ let then = Date.now();
 // Optimization for mobiles
 if (/Android|WebOS|iPad|ipod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
     fps = 29;
-}
+};
 
 // Game loop
-//---
+window.addEventListener('load', function() {
+    drawStartScreen();
+});
+
+function startGame() {
+    clearInterval(startScreenTimeout);
+    gameRunning = true;
+    gameInit();
+    construcArmy(armyX, armyY);
+    gameLoop();
+};
+
+function gameInit() {
+    invaderBulleysArray = [];
+    armyArray = [];
+    score = 0;
+    lives = allowedLives;
+    armyDirection = 'right';
+    aliveInvaders = armyColumns * armyRows;
+    frameCount = 0;
+    armyPrevFrameCount = 0;
+    invBulletPrevFrameCount = 0;
+    hasLifeDecreased = false;
+    armySpeed = 40;
+};
+
+function gameLoop() {
+    if (lives <= 0 || !gameRunning) {
+        gameRunning = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawScore();
+        drawLives();
+        drawGameOver('You Lost!');
+        drawBottomHelper();
+        return false;
+    }
+
+    if (aliveInvaders == 0) {
+        gameRunning = false;
+        drawGameOver('You Won!!!');
+        drawBottomHelper();
+        return false;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    helperHandler();
+    drawScoreSeparateLine();
+    drawScore();
+    drawLives();
+    moveArmy();
+    drawArmyOfInvaders();
+    keyPressed();
+    drawTank(tankX, tankY);
+
+    if (shouldMoveTankBullet) {
+        drawBullet(tankBulletX, tankBulletY);
+        shouldMoveTankBullet();
+    }
+    invadersBulletHandler();
+    animationID = requestAnimationFrame(gameLoop);
+    frameCount++;
+
+    now = Date.now();
+    delta = now - then;
+
+    if (delta > interval) {
+        then = now - (delta % interval);
+        drawExplosion();
+    }
+};
+
+// Events
+window.addEventListener('keydown', () => keys[event.keyCode] = true);
+window.addEventListener('keyup', () => keys[event.keyCode] = false);
+window.addEventListener('keypress', keypressedHandler);
+
+function keyPressed() {
+    if (keys[37]) {
+        if (tankX - tankdX > 0) {
+            tankX -= tankdX;
+        }
+    }
+
+    if (keys[39]) {
+        if (canvas.width - (tankX + tankWidth)) {
+            tankX += tankdX;
+        }
+    }
+
+    if (keys[88] || keys[32]) {
+        if(!shouldMoveTankBullet) {
+            fireTankBullet();
+        }
+    }
+
+    function keypressedHandler() {
+        if (event.keyCode == '13' && !gameRunning) {
+            startGame();
+        }
+    };
+};
+
+// Handlers
+function invadersBulletHandler() {
+    if(invaderBulletsArray.length<3 &&  frameCount- invBullet__prevFrameCount>(armySpeed*armyInvaderBulletsSpeed)) {
+        generateInvaderRandomBullet();
+        invBulletPrevFrameCount = frameCount;
+    }
+    moveInvaderBullets();
+};
+
+//------------ mañana sigo
