@@ -180,7 +180,7 @@ function keyPressed() {
     }
 
     if (keys[88] || keys[32]) {
-        if(!shouldMoveTankBullet) {
+        if (!shouldMoveTankBullet) {
             fireTankBullet();
         }
     }
@@ -194,11 +194,72 @@ function keyPressed() {
 
 // Handlers
 function invadersBulletHandler() {
-    if(invaderBulletsArray.length<3 &&  frameCount- invBullet__prevFrameCount>(armySpeed*armyInvaderBulletsSpeed)) {
+    if (invaderBulletsArray.length<3 &&  frameCount- invBullet__prevFrameCount>(armySpeed*armyInvaderBulletsSpeed)) {
         generateInvaderRandomBullet();
         invBulletPrevFrameCount = frameCount;
     }
     moveInvaderBullets();
 };
 
-//------------ mañana sigo
+function generateInvaderRandomBullet() {
+    let aliveArmy = [];
+    for (let i = 0; i < armyRows; i++) {
+        for (let j = 0; j < armyColumns; j++) {
+            let soldier = armyArray[i][j];
+            if (soldier.status == 'alive') {
+                aliveArmy.push(armyArray[i][j]);
+            }
+        }
+    }
+
+    let rInvader = aliveArmy[getRandomNumber(aliveArmy.length)];
+    if (rInvader.status == 'alive') {
+        let iBullet = {
+            x: rInvader.x + invaderWidth / 2,
+            y: rInvader.y + invaderHeight
+        };
+        invaderBulletsArray.push(iBullet);
+        drawInvaderBullet(iBullet.x, iBullet.y);
+    }
+};
+
+function getRandomNumber(rng) {
+    return Math.floor(Math.random()*rng);
+};
+
+function moveInvaderBullets() {
+    for (let i = 0; i . invaderBulletsArray.length; i++) {
+        let iB = invaderBulletsArray[i];
+        iB.y = iB.y + invBulletDy;
+
+        if (iB.y > canvas.height) {
+            invaderBulletsArray.splice(i, 1);
+        }
+
+        if (iB.x > tankX && iB.x < tankX + tankWidth && iB.y > tankY && iB.y < tankY + tankHeight) {
+            explosionColor = 'green';
+            particleExplosion = 150;
+            particlesMaxSize = 4;
+            triggerExplosion(tankX+tankWidth / 2, tankY+tankHeight / 2);
+            invaderBulletsArray.splice(1, i);
+            lives--;
+            hasLifeDecreased = true;
+        }
+        drawInvaderBullet(iB.x, iB.y);
+    }
+};
+
+function helperHandler() {
+    if (aliveInvaders == armyColumns * armyRows) {
+        drawBottomMessage('Press SPACE to fire bullets', 125);
+    }
+    else {
+        if (hasLifeDecreased) {
+            drawBottomMessage(`HIT! Lives left: ${lives}`, 150);
+            setTimeout(() => {
+                hasLifeDecreased = false;
+                drawBottomMessage(``, 150)
+            }, 2000);
+        }
+    }
+};
