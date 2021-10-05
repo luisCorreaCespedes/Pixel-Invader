@@ -4,7 +4,7 @@ _Videojuego del clásico Space Invaders realizado en JavaScript_
 
 ## Link del proyecto 🚀
 
-_[Squaretrix](https://pixelinvaders.netlify.app)_
+_[Pixel Invaders](https://pixelinvaders.netlify.app)_
 
 ## Instrucciones ⚙️
 
