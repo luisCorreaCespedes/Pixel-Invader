@@ -86,6 +86,11 @@ const interval = 1000/fps;
 let now, delta;
 let then = Date.now();
 
+// Sounds
+const start = new Audio('./assets/music/start.mp3');
+const win = new Audio('./assets/music/win.mp3');
+const gameOver = new Audio('./assets/music/gameover.mp3');
+
 // Optimization for mobiles
 if (/Android|WebOS|iPad|ipod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
     fps = 29;
@@ -98,6 +103,7 @@ window.addEventListener('load', function() {
 
 function startGame() {
     clearInterval(startScreenTimeout);
+    start.play();
     gameRunning = true;
     gameInit();
     constructArmy(armyX, armyY);
@@ -124,6 +130,7 @@ function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawScore();
         drawLives();
+        gameOver.play();
         drawGameOver('You Lost!');
         drawBottomHelper();
         return false;
@@ -131,6 +138,7 @@ function gameLoop() {
 
     if (aliveInvaders == 0) {
         gameRunning = false;
+        win.play();
         drawGameOver('You Won!!!');
         drawBottomHelper();
         return false;
